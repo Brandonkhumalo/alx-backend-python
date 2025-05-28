@@ -1,7 +1,3 @@
-import unittest
-from unittest.mock import patch
-from utils import memoize 
-
 #!/usr/bin/env python3
 """ Unit tests for the access_nested_map function in utils module.
 """
@@ -143,6 +139,9 @@ class TestGetJson(unittest.TestCase):
 
 #!/usr/bin/env python3
 """Unit tests for utils.py module."""
+import unittest
+from unittest.mock import patch
+from utils import memoize 
 
 class TestMemoize(unittest.TestCase):
     """Test case for the memoize decorator."""
