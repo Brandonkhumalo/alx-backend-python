@@ -135,7 +135,7 @@ class TestGetJson(unittest.TestCase):
 import unittest
 from unittest.mock import patch
 
-from your_module import memoize  # Replace with actual module where memoize is defined
+from utils import memoize  # Make sure 'memoize' is defined in 'utils.py'
 
 
 class TestMemoize(unittest.TestCase):
@@ -161,6 +161,10 @@ class TestMemoize(unittest.TestCase):
             mocked_method.assert_called_once()
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
+
+
+if __name__ == "__main__":
+    unittest.main()
 
 
 '''import unittest
