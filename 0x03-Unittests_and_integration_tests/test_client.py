@@ -169,9 +169,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Mock requests.get to return payloads from fixtures based on URL."""
+        # Save patcher object to class attribute
         cls.get_patcher = patch('client.requests.get')
-        mock_get = cls.get_patcher.start()
+        # Start patcher and save mock to separate attribute
+        cls.mock_get = cls.get_patcher.start()
 
         def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
@@ -183,21 +184,19 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
                 mock_resp.json.return_value = {}
             return mock_resp
 
-        mock_get.side_effect = side_effect
+        cls.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
-        """Stop patching requests.get."""
+        # Stop patcher
         cls.get_patcher.stop()
 
     def test_public_repos(self):
-        """Test public_repos returns expected repos."""
         client = GithubOrgClient(self.org_payload['login'])
         repos = client.public_repos()
         self.assertEqual(repos, self.expected_repos)
 
     def test_public_repos_with_license(self):
-        """Test public_repos filtering by license (apache-2.0)."""
         client = GithubOrgClient(self.org_payload['login'])
         repos = client.public_repos(license_key="apache-2.0")
         self.assertEqual(repos, self.apache2_repos)
