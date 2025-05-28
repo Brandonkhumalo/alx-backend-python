@@ -136,7 +136,8 @@ class TestGetJson(unittest.TestCase):
             result = get_json(test_url)
             mock_get.assert_called_once_with(test_url)
             self.assertEqual(result, test_payload)
-            
+
+#!/usr/bin/env python3
 
 import unittest
 from unittest.mock import patch
@@ -144,7 +145,11 @@ from utils import memoize
 
 
 class TestMemoize(unittest.TestCase):
+    """Test case for the memoize decorator."""
+
     def test_memoize(self):
+        """Test that memoize caches method call results."""
+
         class TestClass:
             def a_method(self):
                 return 42
