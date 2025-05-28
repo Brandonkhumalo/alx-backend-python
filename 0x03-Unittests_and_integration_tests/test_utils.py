@@ -138,16 +138,18 @@ class TestGetJson(unittest.TestCase):
             self.assertEqual(result, test_payload)
 
 #!/usr/bin/env python3
-"""Unit tests for utils.py module."""
+"""Unit tests for utils.memoize decorator."""
+
 import unittest
 from unittest.mock import patch
-from utils import memoize 
+from utils import memoize
+
 
 class TestMemoize(unittest.TestCase):
-    """Test case for the memoize decorator."""
+    """Tests for the memoize decorator."""
 
     def test_memoize(self):
-        """Test that memoize caches method call results."""
+        """Test that a method decorated with @memoize is only called once."""
 
         class TestClass:
             def a_method(self):
@@ -159,20 +161,14 @@ class TestMemoize(unittest.TestCase):
 
         test_obj = TestClass()
 
-        with patch.object(
-            test_obj,
-            'a_method',
-            wraps=test_obj.a_method
-        ) as mocked_method:
-            # First call: a_method should be called
-            result1 = test_obj.a_property
+        with patch.object(test_obj, 'a_method',
+                          wraps=test_obj.a_method) as mocked:
+            first = test_obj.a_property
+            second = test_obj.a_property
 
-            # Second call: should return cached result
-            result2 = test_obj.a_property
-
-            self.assertEqual(result1, 42)
-            self.assertEqual(result2, 42)
-            mocked_method.assert_called_once()
+            self.assertEqual(first, 42)
+            self.assertEqual(second, 42)
+            mocked.assert_called_once()
 
 
 if __name__ == '__main__':
