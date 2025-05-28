@@ -133,6 +133,10 @@ class TestGetJson(unittest.TestCase):
             self.assertEqual(result, test_payload)
 
 
+import unittest
+from unittest.mock import patch
+from your_module import memoize  # Make sure this import is at the top of your file
+
 class TestMemoize(unittest.TestCase):
     """Test the memoize decorator."""
 
