@@ -141,7 +141,7 @@ class TestGetJson(unittest.TestCase):
 
 import unittest
 from unittest.mock import patch
-from utils import memoize 
+from utils import memoize  # Update this import to your actual file/module
 
 
 class TestMemoize(unittest.TestCase):
@@ -160,15 +160,20 @@ class TestMemoize(unittest.TestCase):
 
         test_obj = TestClass()
 
-        with patch.object(test_obj, "a_method", wraps=test_obj.a_method) as mocked:
+        with patch.object(
+            test_obj,
+            "a_method",
+            wraps=test_obj.a_method
+        ) as mocked_method:
             # First call: a_method should be called
             result1 = test_obj.a_property
+
             # Second call: a_method should NOT be called again
             result2 = test_obj.a_property
 
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
-            mocked.assert_called_once()
+            mocked_method.assert_called_once()
 
 
 if __name__ == "__main__":
