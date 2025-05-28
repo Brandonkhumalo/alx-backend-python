@@ -133,10 +133,11 @@ class TestGithubOrgClient(unittest.TestCase):
 """Integration tests for GithubOrgClient.public_repos method."""
 
 import unittest
+from client import GithubOrgClient
 
 class TestGithubOrgClient(unittest.TestCase):
     def test_has_license(self):
-        client = GithubOrgClient()
+        clients = GithubOrgClient()
 
         test_cases = [
             ({"license": {"key": "my_license"}}, "my_license", True),
@@ -145,7 +146,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
         for repo, license_key, expected in test_cases:
             with self.subTest(repo=repo, license_key=license_key):
-                self.assertEqual(client.has_license(repo, license_key), expected)
+                self.assertEqual(clients.has_license(repo, license_key), expected)
 
 #!/usr/bin/env python3
 class TestIntegrationGithubOrgClient(unittest.TestCase):
