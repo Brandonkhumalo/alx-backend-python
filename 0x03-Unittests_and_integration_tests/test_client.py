@@ -73,7 +73,8 @@ if __name__ == "__main__":
 
 import unittest
 from unittest.mock import patch, PropertyMock
-from your_module import GithubOrgClient  # replace with your actual module name
+from client GithubOrgClient
+from fixtures import org_payload
 
 
 class TestGithubOrgClient(unittest.TestCase):
