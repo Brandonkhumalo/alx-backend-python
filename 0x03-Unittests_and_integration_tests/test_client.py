@@ -22,7 +22,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Act
         client = GithubOrgClient(org_name)
-        result = client.org
+        result = client.org()
 
         # Assert
         self.assertEqual(result, expected_payload)
