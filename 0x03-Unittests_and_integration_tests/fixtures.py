@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+org_payload = {
+    "login": "google",
+    "id": 123,
+}
+
 TEST_PAYLOAD = [
   (
     {"repos_url": "https://api.github.com/orgs/google/repos"},
