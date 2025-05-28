@@ -160,15 +160,15 @@ class TestMemoize(unittest.TestCase):
 
         test_obj = TestClass()
 
-        with patch.object(test_obj, "a_method", wraps=test_obj.a_method) as mocked_method:
+        with patch.object(test_obj, "a_method", wraps=test_obj.a_method) as mocked:
             # First call: a_method should be called
             result1 = test_obj.a_property
-            # Second call: a_method should NOT be called again (cached)
+            # Second call: a_method should NOT be called again
             result2 = test_obj.a_property
 
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
-            mocked_method.assert_called_once()
+            mocked.assert_called_once()
 
 
 if __name__ == "__main__":
