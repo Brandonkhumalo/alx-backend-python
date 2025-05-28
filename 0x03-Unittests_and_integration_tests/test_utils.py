@@ -81,7 +81,7 @@ class TestGetJson(unittest.TestCase):
             self.assertEqual(result, test_payload)
 
 #!/usr/bin/env python3
-"""Unit tests for the utils module functions.
+"""Unit tests for the utils.memoize decorator.
 """
 
 import unittest
@@ -90,10 +90,10 @@ from utils import memoize
 
 
 class TestMemoize(unittest.TestCase):
-    """Test case for memoize decorator."""
+    """Test the memoize decorator."""
 
     def test_memoize(self) -> None:
-        """Test that a memoized method is called only once despite multiple accesses."""
+        """Test that a memoized method is called once even if accessed twice."""
 
         class TestClass:
             def a_method(self):
@@ -110,9 +110,9 @@ class TestMemoize(unittest.TestCase):
             result1 = test_obj.a_property
             result2 = test_obj.a_property
 
-            # Assert the return value is correct
+            # Verify the method is called only once
+            mocked_method.assert_called_once()
+
+            # Verify the results are as expected
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
-
-            # Assert a_method was called only once
-            mocked_method.assert_called_once()
