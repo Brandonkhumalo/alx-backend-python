@@ -1,31 +1,37 @@
 #!/usr/bin/env python3
-"""Tests for client.GithubOrgClient.org method"""
-
 import unittest
 from unittest.mock import patch
-
-from client import GithubOrgClient
+from parameterized import parameterized
 from fixtures import org_payload
+
+from client import GithubOrgClient  # Ensure this matches your actual file structure
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """Test GithubOrgClient"""
+    """Unit tests for GithubOrgClient.org"""
 
-    def test_org(self):
-        """Test that GithubOrgClient.org returns the correct value and calls get_json once"""
+    @parameterized.expand([
+        ("google",),
+        ("abc",)
+    ])
+    @patch("client.get_json")  # Patch the get_json used in the GithubOrgClient module
+    def test_org(self, org_name, mock_get_json):
+        """Test that GithubOrgClient.org returns the correct data"""
+        # Arrange
+        expected_result = {"login": org_name, "id": 1234}
+        mock_get_json.return_value = expected_result
 
-        for org_name in ("google", "abc"):
-            with self.subTest(org=org_name):
-                with patch("client.get_json") as mock_get_json:
-                    mock_get_json.return_value = org_payload
+        # Act
+        client = GithubOrgClient(org_name)
+        result = client.org
 
-                    client = GithubOrgClient(org_name)
-                    result = client.org()
+        # Assert
+        self.assertEqual(result, expected_result)
+        mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
 
-                    mock_get_json.assert_called_once_with(
-                        f"https://api.github.com/orgs/{org_name}"
-                    )
-                    self.assertEqual(result, org_payload)
+
+if __name__ == '__main__':
+    unittest.main()
 
 #!/usr/bin/env python3
 """Unit tests for the GithubOrgClient class."""
