@@ -171,11 +171,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Setup patcher for requests.get and configure side_effect for json() to return fixtures."""
-        cls.get_patcher = patch('requests.get')
+        # Patch requests.get where it is used, inside client.py
+        cls.get_patcher = patch('client.requests.get')
         mock_get = cls.get_patcher.start()
 
-        # Helper side_effect function for requests.get().json()
-        def json_side_effect(url, *args, **kwargs):
+        # Define a helper function to simulate requests.get().json() response
+        def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
             if url == "https://api.github.com/orgs/google":
                 mock_resp.json.return_value = cls.org_payload
@@ -185,7 +186,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
                 mock_resp.json.return_value = {}
             return mock_resp
 
-        mock_get.side_effect = json_side_effect
+        mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls) -> None:
