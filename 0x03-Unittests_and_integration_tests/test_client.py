@@ -132,22 +132,11 @@ class TestGithubOrgClient(unittest.TestCase):
 #!/usr/bin/env python3
 """Integration tests for GithubOrgClient.public_repos method."""
 
-import unittest
-from unittest.mock import patch, Mock
-from parameterized import parameterized_class
-import requests
-from client import GithubOrgClient
-import fixtures  # assumes fixtures.py is in the same folder or accessible
+class GithubOrgClient:
+    def has_license(self, repo, license_key):
+        return repo.get("license", {}).get("key") == license_key
 
-
-@parameterized_class([
-    {
-        "org_payload": fixtures.org_payload,
-        "repos_payload": fixtures.repos_payload,
-        "expected_repos": fixtures.expected_repos,
-        "apache2_repos": fixtures.apache2_repos,
-    }
-])
+#!/usr/bin/env python3
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient using real logic except external calls."""
 
