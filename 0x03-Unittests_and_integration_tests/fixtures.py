@@ -2,7 +2,9 @@
 
 org_payload = {
     "login": "google",
-    "id": 123,
+    "id": 123456,
+    "url": "https://api.github.com/orgs/google",
+    "repos_url": "https://api.github.com/orgs/google/repos"
 }
 
 TEST_PAYLOAD = [
