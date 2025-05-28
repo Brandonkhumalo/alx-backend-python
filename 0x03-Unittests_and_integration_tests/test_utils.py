@@ -135,7 +135,7 @@ class TestGetJson(unittest.TestCase):
 import unittest
 from unittest.mock import patch
 
-from utils import memoize  # Make sure 'memoize' is defined in 'utils.py'
+from utils import memoize  # assuming memoize is defined in utils.py
 
 
 class TestMemoize(unittest.TestCase):
@@ -161,43 +161,3 @@ class TestMemoize(unittest.TestCase):
             mocked_method.assert_called_once()
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
-
-
-if __name__ == "__main__":
-    unittest.main()
-
-
-'''import unittest
-from unittest.mock import patch
-from utils import memoize  # assuming memoize is defined in utils.py
-
-class TestMemoize(unittest.TestCase):
-    ''' Test the memoize decorator.
-
-    
-    def test_memoize(self) -> None:
-        ''' Test that a memoized method is called once even if accessed twice.
-
-        
-        class TestClass:
-
-            
-            def a_method(self):
-                return 42
-
-            
-            @memoize
-            def a_property(self):
-
-                
-                return self.a_method()
-
-        test_obj = TestClass()
-
-        with patch.object(test_obj, "a_method", return_value=42) as mocked_method:
-            result1 = test_obj.a_property
-            result2 = test_obj.a_property
-
-            mocked_method.assert_called_once()
-            self.assertEqual(result1, 42)
-            self.assertEqual(result2, 42)'''
