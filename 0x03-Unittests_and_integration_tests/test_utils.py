@@ -137,14 +137,6 @@ class TestGetJson(unittest.TestCase):
             mock_get.assert_called_once_with(test_url)
             self.assertEqual(result, test_payload)
 
-#!/usr/bin/env python3
-"""Unit tests for utils.memoize decorator."""
-
-import unittest
-from unittest.mock import patch
-from utils import memoize
-
-
 class TestMemoize(unittest.TestCase):
     """Tests for the memoize decorator."""
 
@@ -161,8 +153,11 @@ class TestMemoize(unittest.TestCase):
 
         test_obj = TestClass()
 
-        with patch.object(test_obj, 'a_method',
-                          wraps=test_obj.a_method) as mocked:
+        with patch.object(
+            test_obj,
+            'a_method',
+            wraps=test_obj.a_method
+        ) as mocked:
             first = test_obj.a_property
             second = test_obj.a_property
 
@@ -173,4 +168,3 @@ class TestMemoize(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
