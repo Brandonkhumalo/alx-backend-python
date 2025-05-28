@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch
 from parameterized import parameterized
-from test_fixtures import org_payloads
+from test_fixtures import org_payload
 
 from client import GithubOrgClient  # Ensure this matches your actual file structure
 
