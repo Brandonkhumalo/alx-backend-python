@@ -2,6 +2,7 @@
 import unittest
 from unittest.mock import patch
 from parameterized import parameterized
+from fixtures import org_payload
 
 from client import GithubOrgClient  # Adjust if your import path differs
 
