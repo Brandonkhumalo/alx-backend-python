@@ -137,7 +137,7 @@ from client import GithubOrgClient
 
 class TestGithubOrgClient(unittest.TestCase):
     def test_has_license(self):
-        clients = GithubOrgClient()
+        clients = GithubOrgClient("some_org_name")
 
         test_cases = [
             ({"license": {"key": "my_license"}}, "my_license", True),
