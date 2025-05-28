@@ -138,13 +138,16 @@ from client import GithubOrgClient
 class TestGithubOrgClient(unittest.TestCase):
     def test_has_license(self):
         client = GithubOrgClient("some_org_name")
+        
         test_cases = [
             ({"license": {"key": "my_license"}}, "my_license", True),
             ({"license": {"key": "other_license"}}, "my_license", False),
         ]
+        
         for repo, license_key, expected in test_cases:
             with self.subTest(repo=repo, license_key=license_key):
-                self.assertEqual(client.has_license(repo, license_key), expected)
+                result = client.has_license(repo, license_key)
+                self.assertEqual(result, expected)
 
 if __name__ == "__main__":
     unittest.main()
