@@ -132,9 +132,20 @@ class TestGithubOrgClient(unittest.TestCase):
 #!/usr/bin/env python3
 """Integration tests for GithubOrgClient.public_repos method."""
 
-class GithubOrgClient:
-    def has_license(self, repo, license_key):
-        return repo.get("license", {}).get("key") == license_key
+import unittest
+
+class TestGithubOrgClient(unittest.TestCase):
+    def test_has_license(self):
+        client = GithubOrgClient()
+
+        test_cases = [
+            ({"license": {"key": "my_license"}}, "my_license", True),
+            ({"license": {"key": "other_license"}}, "my_license", False),
+        ]
+
+        for repo, license_key, expected in test_cases:
+            with self.subTest(repo=repo, license_key=license_key):
+                self.assertEqual(client.has_license(repo, license_key), expected)
 
 #!/usr/bin/env python3
 class TestIntegrationGithubOrgClient(unittest.TestCase):
