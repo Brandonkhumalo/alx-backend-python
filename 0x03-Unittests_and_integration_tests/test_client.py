@@ -5,9 +5,8 @@ Unit tests for GithubOrgClient
 import unittest
 from unittest.mock import patch
 from parameterized import parameterized
-
 from client import GithubOrgClient
-
+from fixtures import org_payload, TEST_PAYLOAD  # Import from fixtures
 
 class TestGithubOrgClient(unittest.TestCase):
     """Test class for GithubOrgClient"""
@@ -19,7 +18,7 @@ class TestGithubOrgClient(unittest.TestCase):
     @patch("client.get_json")
     def test_org(self, org_name, mock_get_json):
         """Test that GithubOrgClient.org returns the correct value"""
-        expected = {"login": org_name, "id": 123}
+        expected = org_payload if org_name == "google" else {"login": org_name, "id": 123}
         mock_get_json.return_value = expected
 
         client = GithubOrgClient(org_name)
@@ -27,8 +26,6 @@ class TestGithubOrgClient(unittest.TestCase):
 
         self.assertEqual(result, expected)
         mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
-
-
 #!/usr/bin/env python3
 """Unit tests for the GithubOrgClient class."""
 
