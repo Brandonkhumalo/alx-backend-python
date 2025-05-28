@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for the access_nested_map function in utils module.
+""" Unit tests for the access_nested_map function in utils module.
 """
 
 import unittest
@@ -9,7 +9,7 @@ from utils import access_nested_map
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    """Test case for access_nested_map function."""
+    """ Test case for access_nested_map function."""
 
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
@@ -137,19 +137,24 @@ from unittest.mock import patch
 from utils import memoize  # assuming memoize is defined in utils.py
 
 class TestMemoize(unittest.TestCase):
-    '''Test the memoize decorator.'''
+    ''' Test the memoize decorator.'''
 
     
     def test_memoize(self) -> None:
-        '''Test that a memoized method is called once even if accessed twice.'''
+        ''' Test that a memoized method is called once even if accessed twice.'''
 
+        
         class TestClass:
+
+            
             def a_method(self):
                 return 42
 
             
             @memoize
             def a_property(self):
+
+                
                 return self.a_method()
 
         test_obj = TestClass()
