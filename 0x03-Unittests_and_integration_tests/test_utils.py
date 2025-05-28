@@ -162,11 +162,11 @@ class TestMemoize(unittest.TestCase):
             self.assertEqual(result2, 42)
 
 '''class TestMemoize(unittest.TestCase):
-    '''Test the memoize decorator.'''
+    '''Test the memoize decorator.
 
     
     def test_memoize(self) -> None:
-        '''Test that a memoized method is called once even if accessed twice.'''
+        '''Test that a memoized method is called once even if accessed twice.
 
         class TestClass:
             def a_method(self):
