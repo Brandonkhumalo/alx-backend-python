@@ -138,10 +138,11 @@ class TestGetJson(unittest.TestCase):
             self.assertEqual(result, test_payload)
 
 #!/usr/bin/env python3
+"""Unit tests for utils.py module."""
 
 import unittest
 from unittest.mock import patch
-from utils import memoize  # Update this import to your actual file/module
+from utils import memoize  # adjust if in a different path
 
 
 class TestMemoize(unittest.TestCase):
@@ -162,13 +163,13 @@ class TestMemoize(unittest.TestCase):
 
         with patch.object(
             test_obj,
-            "a_method",
+            'a_method',
             wraps=test_obj.a_method
         ) as mocked_method:
             # First call: a_method should be called
             result1 = test_obj.a_property
 
-            # Second call: a_method should NOT be called again
+            # Second call: should return cached result
             result2 = test_obj.a_property
 
             self.assertEqual(result1, 42)
@@ -176,5 +177,5 @@ class TestMemoize(unittest.TestCase):
             mocked_method.assert_called_once()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
