@@ -74,6 +74,7 @@ if __name__ == "__main__":
 import unittest
 from unittest.mock import patch, PropertyMock
 from client import GithubOrgClient
+from fixtures import org_payload
 
 
 class TestGithubOrgClient(unittest.TestCase):
