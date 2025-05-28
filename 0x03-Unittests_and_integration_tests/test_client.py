@@ -42,3 +42,38 @@ class TestGithubOrgClient(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+#!/usr/bin/env python3
+"""Unit tests for the GithubOrgClient class."""
+
+import unittest
+from unittest.mock import patch, PropertyMock
+from typing import Dict
+from client import GithubOrgClient
+
+
+class TestGithubOrgClient(unittest.TestCase):
+    """Test cases for the GithubOrgClient class."""
+
+    def test_public_repos_url(self) -> None:
+        """
+        Test that _public_repos_url property returns the repos_url from the
+        mocked org payload.
+        """
+        fake_payload: Dict[str, str] = {
+            "repos_url": "https://api.github.com/orgs/google/repos"
+        }
+        client = GithubOrgClient("google")
+
+        with patch.object(
+            GithubOrgClient,
+            "org",
+            new_callable=PropertyMock,
+            return_value=fake_payload
+        ):
+            result = client._public_repos_url
+            self.assertEqual(result, fake_payload["repos_url"])
+
+
+if __name__ == "__main__":
+    unittest.main()
