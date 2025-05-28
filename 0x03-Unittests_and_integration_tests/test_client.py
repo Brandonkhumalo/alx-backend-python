@@ -130,27 +130,29 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(client.has_license(repo, license_key), expected)
 
 #!/usr/bin/env python3
-"""Integration tests for GithubOrgClient.public_repos method."""
+"""
+Unit tests for GithubOrgClient
+"""
 
 import unittest
 from client import GithubOrgClient
 
+
 class TestGithubOrgClient(unittest.TestCase):
-    def test_has_license(self):
-        client = GithubOrgClient("some_org_name")
-        
+    """Unit test class for GithubOrgClient"""
+
+    def test_has_license(self) -> None:
+        """Test that has_license correctly identifies the license match"""
+        client = GithubOrgClient("google")
+
         test_cases = [
             ({"license": {"key": "my_license"}}, "my_license", True),
             ({"license": {"key": "other_license"}}, "my_license", False),
         ]
-        
+
         for repo, license_key, expected in test_cases:
             with self.subTest(repo=repo, license_key=license_key):
-                result = client.has_license(repo, license_key)
-                self.assertEqual(result, expected)
-
-if __name__ == "__main__":
-    unittest.main()
+                self.assertEqual(client.has_license(repo, license_key), expected)
 
 #!/usr/bin/env python3
 class TestIntegrationGithubOrgClient(unittest.TestCase):
