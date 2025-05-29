@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'chats',
 ]
 
 MIDDLEWARE = [
@@ -69,7 +70,7 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'roadlinkServer.token.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
     ),
 
     'DEFAULT_PERMISSION_CLASSES': [
