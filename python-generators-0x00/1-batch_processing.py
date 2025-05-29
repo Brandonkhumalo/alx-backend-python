@@ -42,4 +42,3 @@ def batch_processing(batch_size):
             # Filter condition: only users over the age of 25
             if float(user['age']) > 25:
                 yield user
-
