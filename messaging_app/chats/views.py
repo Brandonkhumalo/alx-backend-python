@@ -1,3 +1,56 @@
-from django.shortcuts import render
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 
-# Create your views here.
+from .models import Conversation, Message, User
+from .serializers import ConversationSerializer, MessageSerializer
+
+
+class ConversationViewSet(viewsets.ModelViewSet):
+    queryset = Conversation.objects.all().prefetch_related('participants', 'messages')
+    serializer_class = ConversationSerializer
+
+    def create(self, request, *args, **kwargs):
+        participant_ids = request.data.get('participants', [])
+        if len(participant_ids) < 2:
+            return Response({'detail': 'At least 2 participants are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        participants = User.objects.filter(user_id__in=participant_ids)
+        if participants.count() < 2:
+            return Response({'detail': 'Invalid participants provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        conversation = Conversation.objects.create()
+        conversation.participants.set(participants)
+        serializer = self.get_serializer(conversation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.select_related('sender', 'conversation').all()
+    serializer_class = MessageSerializer
+
+    def create(self, request, *args, **kwargs):
+        conversation_id = request.data.get('conversation_id')
+        sender_id = request.data.get('sender_id')
+        message_body = request.data.get('message_body')
+
+        if not conversation_id or not sender_id or not message_body:
+            return Response({'detail': 'conversation_id, sender_id, and message_body are required.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        conversation = get_object_or_404(Conversation, conversation_id=conversation_id)
+        sender = get_object_or_404(User, user_id=sender_id)
+
+        if sender not in conversation.participants.all():
+            return Response({'detail': 'Sender is not a participant of the conversation.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        message = Message.objects.create(
+            conversation=conversation,
+            sender=sender,
+            message_body=message_body
+        )
+
+        serializer = self.get_serializer(message)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
