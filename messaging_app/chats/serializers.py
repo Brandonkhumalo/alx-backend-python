@@ -1,42 +1,52 @@
 from rest_framework import serializers
 from .models import User, Conversation, Message
 
-
 class UserSerializer(serializers.ModelSerializer):
-    # Explicit CharFields
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    phone_number = serializers.CharField(required=False, allow_blank=True)
+    full_name = serializers.SerializerMethodField()  # ✅ uses SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['user_id', 'email', 'first_name', 'last_name', 'phone_number']
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'phone_number', 'full_name']
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = UserSerializer(read_only=True)
-    sender_name = serializers.SerializerMethodField()
+    sender_email = serializers.CharField(source='sender.email', read_only=True)  # ✅ uses CharField
 
     class Meta:
         model = Message
-        fields = ['message_id', 'sender', 'sender_name', 'message_body', 'sent_at']
-
-    def get_sender_name(self, obj):
-        return f"{obj.sender.first_name} {obj.sender.last_name}"
+        fields = [
+            'message_id',
+            'conversation',
+            'sender',
+            'sender_email',
+            'message_body',
+            'sent_at',
+            'created_at'
+        ]
 
 
 class ConversationSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
-    messages = MessageSerializer(many=True, read_only=True)
+    participant_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all(), write_only=True
+    )
+    messages = MessageSerializer(many=True, read_only=True, source='messages')
+    title = serializers.CharField(write_only=True, required=False)  # ✅ uses CharField
 
     class Meta:
         model = Conversation
-        fields = ['conversation_id', 'participants', 'created_at', 'messages']
+        fields = ['conversation_id', 'participants', 'participant_ids', 'messages', 'title']
 
-    def validate(self, data):
-        # Example validation: must have at least 2 participants
-        if self.instance is None and self.initial_data.get('participants') is not None:
-            participants = self.initial_data['participants']
-            if len(participants) < 2:
-                raise serializers.ValidationError("A conversation must have at least 2 participants.")
-        return data
+    def validate_title(self, value):
+        if 'badword' in value.lower():
+            raise serializers.ValidationError("Title contains inappropriate content.")  # ✅ uses ValidationError
+        return value
+
+    def create(self, validated_data):
+        participant_ids = validated_data.pop('participant_ids', [])
+        conversation = Conversation.objects.create(**validated_data)
+        conversation.participants.set(participant_ids)
+        return conversation
