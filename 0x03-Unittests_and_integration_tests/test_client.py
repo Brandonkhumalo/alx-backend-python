@@ -88,57 +88,6 @@ class TestGithubOrgClient(unittest.TestCase):
     )
 ])
 
-class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Integration test for GithubOrgClient.public_repos method"""
-
-    @classmethod
-    def setUpClass(cls):
-        """Set up patcher for requests.get"""
-        cls.get_patcher = patch('requests.get')
-        cls.mock_get = cls.get_patcher.start()
-
-        # Set up mock return values: 2 calls per test (org + repos)
-        cls.mock_get.side_effect = [
-            MagicMock(json=lambda: cls.org_payload),
-            MagicMock(json=lambda: cls.repos_payload),
-            MagicMock(json=lambda: cls.org_payload),
-            MagicMock(json=lambda: cls.repos_payload)
-        ]
-
-    @classmethod
-    def tearDownClass(cls):
-        """Stop patcher"""
-        cls.get_patcher.stop()
-
-    def test_public_repos(self):
-        """Test public_repos returns all repos"""
-        client = GithubOrgClient("google")
-        self.assertEqual(client.public_repos(), self.expected_repos)
-
-    def test_public_repos_with_license(self):
-        """Test public_repos filters by license"""
-        client = GithubOrgClient("google")
-        self.assertEqual(
-            client.public_repos(license="apache-2.0"),
-            self.apache2_repos
-        )
-
-
-if __name__ == "__main__":
-    import sys
-    from unittest import TestLoader, TextTestRunner
-
-    loader = TestLoader()
-    suite = loader.loadTestsFromTestCase(TestGithubOrgClient)
-    suite.addTests(
-         loader.loadTestsFromTestCase(TestIntegrationGithubOrgClient)
-    )
-
-    runner = TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-
-    sys.exit(not result.wasSuccessful())
-
 #!/usr/bin/env python3
 """Unit tests for the GithubOrgClient class."""
 
