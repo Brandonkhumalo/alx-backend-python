@@ -89,7 +89,7 @@ class TestGithubOrgClient(unittest.TestCase):
 ])
 
 #!/usr/bin/env python3
-"""Unit tests for the GithubOrgClient class"""
+"""Unit tests for the GithubOrgClient class."""
 
 import unittest
 from unittest.mock import patch, PropertyMock
