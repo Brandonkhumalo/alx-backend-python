@@ -250,34 +250,61 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.assertEqual(repos, self.apache2_repos)
 
 #!/usr/bin/env python3
+"""Unit tests for the GithubOrgClient class."""
+
 import unittest
 from unittest.mock import patch, PropertyMock
 from client import GithubOrgClient
-from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+
 
 class TestGithubOrgClient(unittest.TestCase):
+    """Test GithubOrgClient.public_repos method."""
 
     @patch('client.get_json')
     def test_public_repos(self, mock_get_json):
-        """Test that public_repos returns the correct list of repo names"""
-        mock_get_json.return_value = repos_payload
+        """Test public_repos returns list of repo names."""
+        # Mock return value from get_json (no license filtering)
+        mock_get_json.return_value = [
+            {"name": "repo1", "license": {"key": "mit"}},
+            {"name": "repo2", "license": {"key": "apache-2.0"}},
+        ]
 
-        with patch.object(GithubOrgClient, 'org', new_callable=PropertyMock) as mock_org:
-            mock_org.return_value = org_payload
-            client = GithubOrgClient("testorg")
-            result = client.public_repos()
-            self.assertEqual(result, expected_repos)
+        with patch.object(
+            GithubOrgClient,
+            '_public_repos_url',
+            new_callable=PropertyMock,
+            return_value="https://api.github.com/orgs/test-org/repos"
+        ):
+            client = GithubOrgClient("test-org")
+            repos = client.public_repos()
+
+        expected = ["repo1", "repo2"]
+        self.assertEqual(repos, expected)
+        mock_get_json.assert_called_once()
 
     @patch('client.get_json')
     def test_public_repos_with_license(self, mock_get_json):
-        """Test filtering public_repos by license"""
-        mock_get_json.return_value = repos_payload
+        """Test public_repos filters repos by license key."""
+        # Mock repos with various licenses
+        mock_get_json.return_value = [
+            {"name": "repo1", "license": {"key": "apache-2.0"}},
+            {"name": "repo2", "license": {"key": "mit"}},
+            {"name": "repo3", "license": {"key": "apache-2.0"}},
+        ]
 
-        with patch.object(GithubOrgClient, 'org', new_callable=PropertyMock) as mock_org:
-            mock_org.return_value = org_payload
-            client = GithubOrgClient("testorg")
-            result = client.public_repos(license="apache-2.0")
-            self.assertEqual(result, apache2_repos)
+        with patch.object(
+            GithubOrgClient,
+            '_public_repos_url',
+            new_callable=PropertyMock,
+            return_value="https://api.github.com/orgs/test-org/repos"
+        ):
+            client = GithubOrgClient("test-org")
+            repos = client.public_repos(license="apache-2.0")
+
+        expected = ["repo1", "repo3"]
+        self.assertEqual(repos, expected)
+        mock_get_json.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
