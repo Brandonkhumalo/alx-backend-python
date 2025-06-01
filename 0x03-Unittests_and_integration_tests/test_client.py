@@ -87,6 +87,24 @@ class TestGithubOrgClient(unittest.TestCase):
         ["repo1", "repo3"]
     )
 ])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Integration tests with parameterized payloads."""
+
+    @patch('client.get_json')
+    def test_public_repos_integration(self, mock_get_json):
+        """Test public_repos with injected payloads."""
+        mock_get_json.side_effect = [self.org_payload, self.repos_payload]
+
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(), self.expected_repos)
+
+    @patch('client.get_json')
+    def test_public_repos_with_license(self, mock_get_json):
+        """Test public_repos filtered by apache-2.0 license."""
+        mock_get_json.side_effect = [self.org_payload, self.repos_payload]
+
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos("apache-2.0"), self.apache2_repos)
 
 #!/usr/bin/env python3
 """Unit tests for the GithubOrgClient class."""
