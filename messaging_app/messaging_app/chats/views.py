@@ -1,19 +1,27 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated
-
+from .filters import MessageFilter
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
+from .permissions import IsParticipantOfConversation
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    queryset = Conversation.objects.all().prefetch_related('participants', 'messages')
     serializer_class = ConversationSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['participants']
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = MessageFilter
+    ordering_fields = ['sent_at']
+    ordering = ['-sent_at']  # latest messages first
+
+    def get_queryset(self):
+        return Message.objects.filter(conversation__participants=self.request.user)
+
+    def get_queryset(self):
+        return self.request.user.conversations.all().prefetch_related('participants', 'messages')
 
     def create(self, request, *args, **kwargs):
         participant_ids = request.data.get('participants', [])
@@ -31,12 +39,15 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.select_related('sender', 'conversation').all()
     serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['conversation', 'sender']
     ordering_fields = ['sent_at']
-    ordering = ['sent_at']  # Default ordering
+    ordering = ['sent_at']
+
+    def get_queryset(self):
+        return Message.objects.filter(conversation__participants=self.request.user).select_related('sender', 'conversation')
 
     def create(self, request, *args, **kwargs):
         conversation_id = request.data.get('conversation_id')
@@ -50,6 +61,10 @@ class MessageViewSet(viewsets.ModelViewSet):
         conversation = get_object_or_404(Conversation, conversation_id=conversation_id)
         sender = get_object_or_404(User, user_id=sender_id)
 
+        if sender != request.user:
+            return Response({'detail': 'You can only send messages as the authenticated user.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
         if sender not in conversation.participants.all():
             return Response({'detail': 'Sender is not a participant of the conversation.'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -62,17 +77,3 @@ class MessageViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-class ConversationViewSet(viewsets.ModelViewSet):
-    serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return self.request.user.conversations.all()
-
-class MessageViewSet(viewsets.ModelViewSet):
-    serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Message.objects.filter(conversation__participants=self.request.user)
