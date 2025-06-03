@@ -74,3 +74,23 @@ class OffensiveLanguageMiddleware:
         if x_forwarded_for:
             return x_forwarded_for.split(",")[0].strip()
         return request.META.get("REMOTE_ADDR")
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only enforce role checks on authenticated users
+        user = request.user
+        if user.is_authenticated:
+            # Customize your paths if needed
+            protected_paths = ['/admin-only/', '/moderator-only/']
+
+            if any(request.path.startswith(path) for path in protected_paths):
+                if user.role not in ['admin', 'moderator']:
+                    return JsonResponse(
+                        {"detail": "Access denied: insufficient permissions."},
+                        status=403
+                    )
+
+        return self.get_response(request)
