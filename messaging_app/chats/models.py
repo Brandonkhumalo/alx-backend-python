@@ -2,6 +2,12 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+ROLE_CHOICES = (
+    ('admin', 'Admin'),
+    ('moderator', 'Moderator'),
+    ('user', 'User'),
+)
+
 # Custom User model named "User"
 class User(AbstractUser):
     user_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
@@ -10,6 +16,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
