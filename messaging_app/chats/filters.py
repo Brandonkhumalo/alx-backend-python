@@ -9,4 +9,4 @@ class MessageFilter(django_filters.FilterSet):
 
     class Meta:
         model = Message
-        fields = ['conversation', 'sender', 'start_date', 'end_date']
+        fields = ['sender', 'conversation', 'created_after', 'created_before']
