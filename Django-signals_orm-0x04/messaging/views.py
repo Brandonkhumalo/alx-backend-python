@@ -96,19 +96,6 @@ class MessageViewSet(viewsets.ModelViewSet):
             MessageHistory.objects.filter(message__receiver=instance).delete()
 
         @login_required
-        def inbox_view(request):
-            # Get root messages (not replies)
-            messages = (
-                Message.objects
-                .filter(receiver=request.user, parent_message__isnull=True)
-                .select_related('sender', 'receiver')           # ✅ Fetch foreign keys
-                .prefetch_related('replies__sender')            # ✅ Fetch nested replies and their senders
-                .order_by('-timestamp')
-            )
-
-            return render(request, 'messaging/inbox.html', {'messages': messages})
-        
-        @login_required
         def send_message(request, parent_id=None):
             parent = None
             if parent_id:
@@ -118,8 +105,10 @@ class MessageViewSet(viewsets.ModelViewSet):
                 form = MessageForm(request.POST)
                 if form.is_valid():
                     message = form.save(commit=False)
-                    message.sender = request.user       # ✅ Required to track sender
-                    message.parent_message = parent     # Optional if this is a reply
+                    message.sender = request.user  # ✅ Fix: assign sender
+                    if parent:
+                        message.parent_message = parent
+                        message.receiver = parent.sender  # Automatically reply to original sender
                     message.save()
                     return redirect('inbox')
             else:
