@@ -78,41 +78,46 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        @login_required
-        def delete_user(request):
-            if request.method == "POST":
-                user = request.user
-                logout(request)
-                user.delete()
-                return redirect('home')
+    @login_required
+    def delete_user(request):
+        if request.method == "POST":
+            user = request.user
+            logout(request)
+            user.delete()
+            return redirect('home')
 
-        @receiver(post_delete, sender=User)
-        def delete_user_related_data(sender, instance, **kwargs):
-            # Optional cleanup in case on_delete isn't used
-            Message.objects.filter(sender=instance).delete()
-            Message.objects.filter(receiver=instance).delete()
-            Notification.objects.filter(user=instance).delete()
-            MessageHistory.objects.filter(message__sender=instance).delete()
-            MessageHistory.objects.filter(message__receiver=instance).delete()
+    @receiver(post_delete, sender=User)
+    def delete_user_related_data(sender, instance, **kwargs):
+        # Optional cleanup in case on_delete isn't used
+        Message.objects.filter(sender=instance).delete()
+        Message.objects.filter(receiver=instance).delete()
+        Notification.objects.filter(user=instance).delete()
+        MessageHistory.objects.filter(message__sender=instance).delete()
+        MessageHistory.objects.filter(message__receiver=instance).delete()
 
-        @login_required
-        def send_message(request, parent_id=None):
-            parent = None
-            sender = request.user
-            if parent_id:
-                parent = get_object_or_404(Message, id=parent_id)
+    @login_required
+    def send_message(request, parent_id=None):
+        parent = None
+        sender = request.user
+        if parent_id:
+            parent = get_object_or_404(Message, id=parent_id)
 
-            if request.method == 'POST':
-                form = MessageForm(request.POST)
-                if form.is_valid():
-                    message = form.save(commit=False)
-                    message.sender = sender  # ✅ Fix: assign sender
-                    if parent:
-                        message.parent_message = parent
-                        message.receiver = parent.sender  # Automatically reply to original sender
-                    message.save()
-                    return redirect('inbox')
-            else:
-                form = MessageForm()
+        if request.method == 'POST':
+            form = MessageForm(request.POST)
+            if form.is_valid():
+                message = form.save(commit=False)
+                message.sender = sender  # ✅ Fix: assign sender
+                if parent:
+                    message.parent_message = parent
+                    message.receiver = parent.sender  # Automatically reply to original sender
+                message.save()
+                return redirect('inbox')
+        else:
+            form = MessageForm()
 
-            return render(request, 'messaging/send_message.html', {'form': form, 'parent': parent})
+        return render(request, 'messaging/send_message.html', {'form': form, 'parent': parent})
+        
+    @login_required
+    def unread_messages_view(request):
+        unread_messages = Message.unread.for_user(request.user).select_related('sender')
+        return render(request, 'messaging/unread.html', {'messages': unread_messages})
