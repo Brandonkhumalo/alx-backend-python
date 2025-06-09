@@ -77,3 +77,20 @@ class MessageViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        @login_required
+        def delete_user(request):
+            if request.method == "POST":
+                user = request.user
+                logout(request)
+                user.delete()
+                return redirect('home')
+
+        @receiver(post_delete, sender=User)
+        def delete_user_related_data(sender, instance, **kwargs):
+            # Optional cleanup in case on_delete isn't used
+            Message.objects.filter(sender=instance).delete()
+            Message.objects.filter(receiver=instance).delete()
+            Notification.objects.filter(user=instance).delete()
+            MessageHistory.objects.filter(message__sender=instance).delete()
+            MessageHistory.objects.filter(message__receiver=instance).delete()
