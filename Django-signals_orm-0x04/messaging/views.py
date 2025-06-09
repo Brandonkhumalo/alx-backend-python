@@ -98,6 +98,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         @login_required
         def send_message(request, parent_id=None):
             parent = None
+            sender = request.user
             if parent_id:
                 parent = get_object_or_404(Message, id=parent_id)
 
@@ -105,7 +106,7 @@ class MessageViewSet(viewsets.ModelViewSet):
                 form = MessageForm(request.POST)
                 if form.is_valid():
                     message = form.save(commit=False)
-                    message.sender = request.user  # ✅ Fix: assign sender
+                    message.sender = sender  # ✅ Fix: assign sender
                     if parent:
                         message.parent_message = parent
                         message.receiver = parent.sender  # Automatically reply to original sender
