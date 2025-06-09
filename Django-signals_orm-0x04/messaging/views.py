@@ -96,14 +96,33 @@ class MessageViewSet(viewsets.ModelViewSet):
             MessageHistory.objects.filter(message__receiver=instance).delete()
 
         @login_required
-        def send_message(request):
+        def inbox_view(request):
+            # Get root messages (not replies)
+            messages = (
+                Message.objects
+                .filter(receiver=request.user, parent_message__isnull=True)
+                .select_related('sender', 'receiver')           # ✅ Fetch foreign keys
+                .prefetch_related('replies__sender')            # ✅ Fetch nested replies and their senders
+                .order_by('-timestamp')
+            )
+
+            return render(request, 'messaging/inbox.html', {'messages': messages})
+        
+        @login_required
+        def send_message(request, parent_id=None):
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(Message, id=parent_id)
+
             if request.method == 'POST':
                 form = MessageForm(request.POST)
                 if form.is_valid():
                     message = form.save(commit=False)
-                    message.sender = request.user  # ✅ Correctly set the sender
+                    message.sender = request.user       # ✅ Required to track sender
+                    message.parent_message = parent     # Optional if this is a reply
                     message.save()
-                    return redirect('inbox')  # Redirect to your inbox view
+                    return redirect('inbox')
             else:
                 form = MessageForm()
-            return render(request, 'messaging/send_message.html', {'form': form})
+
+            return render(request, 'messaging/send_message.html', {'form': form, 'parent': parent})
