@@ -119,5 +119,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         
     @login_required
     def unread_messages_view(request):
-        unread_messages = Message.unread.for_user(request.user).select_related('sender')
-        return render(request, 'messaging/unread.html', {'messages': unread_messages})
+        unread_messages = Message.unread.unread_for_user(request.user).select_related('sender')
+        # .only() is already applied inside unread_for_user()
+
+        return render(request, 'messaging/unread_messages.html', {'messages': unread_messages})
