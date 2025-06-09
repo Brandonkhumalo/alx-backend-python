@@ -94,3 +94,8 @@ class MessageViewSet(viewsets.ModelViewSet):
             Notification.objects.filter(user=instance).delete()
             MessageHistory.objects.filter(message__sender=instance).delete()
             MessageHistory.objects.filter(message__receiver=instance).delete()
+
+        def message_threads_view(request):
+            root_messages = get_threaded_messages(request.user)
+            threads = [build_thread(msg) for msg in root_messages]
+            return render(request, 'message_threads.html', {'threads': threads})

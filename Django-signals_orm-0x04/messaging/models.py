@@ -69,12 +69,14 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
-    edited_by = models.ForeignKey(  # NEW FIELD
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='edited_messages'
+    edited_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='edited_messages'
+    )
+    parent_message = models.ForeignKey(  # 👈 NEW FIELD
+        'self', null=True, blank=True,
+        on_delete=models.CASCADE,
+        related_name='replies'
     )
 
     def __str__(self):
