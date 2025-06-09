@@ -95,7 +95,15 @@ class MessageViewSet(viewsets.ModelViewSet):
             MessageHistory.objects.filter(message__sender=instance).delete()
             MessageHistory.objects.filter(message__receiver=instance).delete()
 
-        def message_threads_view(request):
-            root_messages = get_threaded_messages(request.user)
-            threads = [build_thread(msg) for msg in root_messages]
-            return render(request, 'message_threads.html', {'threads': threads})
+        @login_required
+        def send_message(request):
+            if request.method == 'POST':
+                form = MessageForm(request.POST)
+                if form.is_valid():
+                    message = form.save(commit=False)
+                    message.sender = request.user  # ✅ Correctly set the sender
+                    message.save()
+                    return redirect('inbox')  # Redirect to your inbox view
+            else:
+                form = MessageForm()
+            return render(request, 'messaging/send_message.html', {'form': form})
