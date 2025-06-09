@@ -1,12 +1,14 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import MessageFilter
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
+from django.views.decorators.cache import cache_page
+from django.contrib.auth.decorators import login_required
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -123,3 +125,11 @@ class MessageViewSet(viewsets.ModelViewSet):
         # .only() is already applied inside unread_for_user()
 
         return render(request, 'messaging/unread_messages.html', {'messages': unread_messages})
+
+    @login_required
+    @cache_page(60)  # Cache timeout in seconds
+    def conversation_view(request, conversation_id):
+        # Example: fetch messages in the conversation
+        messages = Message.objects.filter(conversation_id=conversation_id).select_related('sender').order_by('timestamp')
+
+        return render(request, 'messaging/conversation.html', {'messages': messages})

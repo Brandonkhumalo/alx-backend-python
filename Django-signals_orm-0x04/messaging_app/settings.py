@@ -95,6 +95,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 WSGI_APPLICATION = 'messaging_app.wsgi.application'
 
 
