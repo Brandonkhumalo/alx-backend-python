@@ -2,21 +2,22 @@ version: '3.9'
 
 services:
   db:
-    image: mysql:8
+    image: mysql:8.0
+    container_name: mysql_db
     restart: always
-    env_file: .env
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
     ports:
       - "3306:3306"
 
   web:
     build: .
+    container_name: django_app
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -24,7 +25,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    env_file: .env
+    env_file:
+      - .env
 
 volumes:
-  mysql_data:
+  db_data:
