@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# kubctl-0x03.sh - Perform a rolling update and monitor for downtime
+
+DEPLOYMENT_NAME="django-blue"
+SERVICE_NAME="django-service"
+
+echo "🚀 Applying the updated deployment (image version 2.0)..."
+kubectl apply -f blue_deployment.yaml
+
+echo "📦 Monitoring rollout status..."
+kubectl rollout status deployment/$DEPLOYMENT_NAME
+
+echo "🌐 Starting continuous health test using curl..."
+echo "Press Ctrl+C to stop after a few seconds."
+
+# Start background curl loop to test for downtime
+for i in {1..30}
+do
+    TIMESTAMP=$(date +"%T")
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/)
+    echo "$TIMESTAMP - HTTP Status: $STATUS"
+    sleep 1
+done
+
+echo "✅ Checking running pods:"
+kubectl get pods -l app=django-app,version=blue
