@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# kubctl-0x01 - Scale Django app and monitor it
+
+DEPLOYMENT_NAME="django-messaging-app"
+
+echo "📈 Scaling deployment to 3 replicas..."
+kubectl scale deployment $DEPLOYMENT_NAME --replicas=3
+
+echo "🔍 Waiting for pods to be ready..."
+kubectl rollout status deployment/$DEPLOYMENT_NAME
+
+echo "📋 Current pods status:"
+kubectl get pods -l app=$DEPLOYMENT_NAME
+
+echo "🧪 Performing load test using wrk (10s duration)..."
+echo "NOTE: Ensure port-forwarding is running in another terminal: kubectl port-forward svc/django-messaging-svc 8000:8000"
+wrk -t2 -c100 -d10s http://localhost:8000/
+
+echo "📊 Resource usage:"
+kubectl top pods
