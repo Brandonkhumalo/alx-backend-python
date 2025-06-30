@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        // Make sure Python 3 and pip are installed on your Jenkins agent/docker
-        python 'python3'  // Name configured in Jenkins tools, or remove this line if not used
-    }
-
     environment {
         VENV_DIR = 'venv'
     }
@@ -13,13 +8,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-credentials', url: 'https://github.com/Brandonkhumalo>/<alx-backend-python/messaging_app>.git'
+                git credentialsId: 'github-credentials', url: 'https://github.com/<Brandonkhumalo>/<alx-backend-python>.git'
+                sh 'echo "Current Git Branch: $(git rev-parse --abbrev-ref HEAD)"'
             }
         }
 
         stage('Setup Python Environment') {
             steps {
-                // Create virtual environment and install dependencies
                 sh '''
                 python3 -m venv ${VENV_DIR}
                 source ${VENV_DIR}/bin/activate
