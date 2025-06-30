@@ -3,12 +3,14 @@ pipeline {
 
     environment {
         VENV_DIR = 'venv'
+        DOCKER_IMAGE = 'yourdockerhubusername/messaging-app'
+        DOCKER_TAG = "latest"  // You can change this to use branch name or build number
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-credentials', url: 'https://github.com/<Brandonkhumalo>/<alx-backend-python>.git'
+                git credentialsId: 'github-credentials', url: 'https://github.com/<your-username>/<messaging-app-repo>.git'
                 sh '''
                 echo "Listing local branches:"
                 git branch
@@ -39,6 +41,25 @@ pipeline {
         stage('Publish Test Report') {
             steps {
                 junit 'test-results.xml'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh '''
+                    echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                    docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    '''
+                }
             }
         }
     }
