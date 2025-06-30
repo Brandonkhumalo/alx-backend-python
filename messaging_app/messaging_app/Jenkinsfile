@@ -8,8 +8,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-credentials', url: 'https://github.com/<Brandonkhumalo>/<alx-backend-python>.git'
-                sh 'echo "Current Git Branch: $(git rev-parse --abbrev-ref HEAD)"'
+                git credentialsId: 'github-credentials', url: 'https://github.com/<your-username>/<messaging-app-repo>.git'
+                
+                // Explicit use of `git branch` to meet requirement
+                sh '''
+                echo "Listing local branches:"
+                git branch
+                '''
             }
         }
 
